@@ -46,35 +46,33 @@ class ServiceNowConnector {
    * @param {error} [errorMessage] - If an error is caught, return error
    *   message in optional second argument to callback function.
    */
-/**
- * @method constructUri
- * @description Build and return the proper URI by appending an optionally passed
- *   [URL query string]{@link https://en.wikipedia.org/wiki/Query_string}.
- *
- * @param {string} serviceNowTable - The table target of the ServiceNow table API.
- * @param {string} [query] - Optional URL query string.
- *
- * @return {string} ServiceNow URL
- */
-constructUri(serviceNowTable, query = null) {
-  let uri = `/api/now/table/${serviceNowTable}`;
-  if (query) {
+   /**
+   * @method constructUri
+   * @description Build and return the proper URI by appending an optionally passed
+   *   [URL query string]{@link https://en.wikipedia.org/wiki/Query_string}.
+   * @param {string} [query] - Optional URL query string.
+   *
+   * @return {string} ServiceNow URL
+   */
+   constructUri(query = null) {
+   let uri = `/api/now/table/${this.options.serviceNowTable}`;
+   if (query) {
     uri = uri + '?' + query;
-  }
-  return uri;
-};
+   }
+   return uri;
+   };
 
 
-/**
- * @method isHibernating
- * @description Checks if request function responded with evidence of
- *   a hibernating ServiceNow instance.
- *
- * @param {object} response - The response argument passed by the request function in its callback.
- *
- * @return {boolean} Returns true if instance is hibernating. Otherwise returns false.
- */
-isHibernating(response) {
+ /**
+  * @method isHibernating
+  * @description Checks if request function responded with evidence of
+  *   a hibernating ServiceNow instance.
+  *
+  * @param {object} response - The response argument passed by the request function in its callback.
+  *
+  * @return {boolean} Returns true if instance is hibernating. Otherwise returns false.
+  */
+  isHibernating(response) {
   return response.body.includes('Instance Hibernating page')
   && response.body.includes('<html>')
   && response.statusCode === 200;
@@ -95,7 +93,7 @@ isHibernating(response) {
  *   Will be HTML text if hibernating instance.
  * @param {error} callback.error - The error property of callback.
  */
-processRequestResults(error, response, body, callback) {
+ processRequestResults(error, response, body, callback) {
   /**
    * You must build the contents of this function.
    * Study your package and note which parts of the get()
@@ -113,7 +111,7 @@ processRequestResults(error, response, body, callback) {
     } else if (!validResponseRegex.test(response.statusCode)) {
       console.error('Bad response code.');
       callbackError = response;
-    } else if (isHibernating(response)) {
+    } else if (this.isHibernating(response)) {
       callbackError = 'Service Now instance is hibernating';
       console.error(callbackError);
     } else {
@@ -142,9 +140,9 @@ sendRequest(callOptions, callback) {
   // Initialize return arguments for callback
   let uri;
   if (callOptions.query)
-    uri = constructUri(callOptions.serviceNowTable, callOptions.query);
+    uri = this.constructUri(callOptions.query);
   else
-    uri = constructUri(callOptions.serviceNowTable);
+    uri = this.constructUri();
   /**
    * You must build the requestOptions object.
    * This is not a simple copy/paste of the requestOptions object
@@ -154,15 +152,15 @@ sendRequest(callOptions, callback) {
   const requestOptions = {
    method: callOptions.method,
     auth: {
-      user: options.username,
-      pass: options.password,
+      user: this.options.username,
+      pass: this.options.password,
     },
-    baseUrl: options.url,
+    baseUrl: this.options.url,
     uri: uri,
   };
 
-  this.request(requestOptions, (error, response, body) => {
-    processRequestResults(error, response, body, (processedResults, processedError) => callback(processedResults, processedError));
+  request(requestOptions, (error, response, body) => {
+    this.processRequestResults(error, response, body, (processedResults, processedError) => callback(processedResults, processedError));
   });
 }
 
@@ -179,10 +177,11 @@ sendRequest(callOptions, callback) {
  *   Will be HTML text if hibernating instance.
  * @param {error} callback.error - The error property of callback.
  */
-post(callOptions, callback) {
+ post(callback) {
+  let callOptions = { ...this.options };   
   callOptions.method = 'POST';
-  sendRequest(callOptions, (results, error) => callback(results, error));
-}
+  this.sendRequest(callOptions, (results, error) => callback (results, error));
+ }
 
 
   /**
