@@ -188,10 +188,9 @@ healthcheck(callback) {
      * Note how the object was instantiated in the constructor().
      * get() takes a callback function.
      */
-     let getCallOptions = { ...this.options };
-     getCallOptions.method = 'GET';
-     getCallOptions.query = 'sysparm_limit=1';
-     this.ServiceNowConnector(getCallOptions, (results, error) => callback(results, error));
+     
+     
+     this.connector.get((results, error) => callback(results, error));
   }
 
   /**
@@ -210,9 +209,8 @@ healthcheck(callback) {
      * Note how the object was instantiated in the constructor().
      * post() takes a callback function.
      */
-     let callOptions = { ...this.options };   
-     callOptions.method = 'POST';
-     this.ServiceNowConnector(callOptions, (results, error) => callback (results, error));
+     
+     this.connector.post((results, error) => callback (results, error));
   }
 }
 
