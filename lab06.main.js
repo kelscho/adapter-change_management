@@ -190,24 +190,7 @@ healthcheck(callback) {
      */
      
      
-     this.connector.get((results, error) => {
-        if (results) { 
-          if (results.body != null){
-           log.debug(`Result body found:${results.body}`);
-           var obj = JSON.parse(results.body);
-           let entry = null;
-           for(entry in obj.result){
-             log.debug(obj.result[entry].number); 
-           }
-           
-          }
-        }else{
-            log.debug('No results found.');
-           return callback(results, error);
-        }
-         
-     
-     });
+     this.connector.get((results, error) => callback(results, error));
   }
 
   /**
