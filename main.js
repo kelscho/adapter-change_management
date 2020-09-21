@@ -94,12 +94,13 @@ class ServiceNowAdapter extends EventEmitter {
  *   that handles the response.
  */
 healthcheck(callback) {
+ log.debug(`IN healthcheck`);
  this.getRecord((result, error) => {
      
    /**
-    * For this lab, complete the if else conditional
-    * statements that check if an error exists
-    * or the instance was hibernating. You must write
+    * Checks OFFLINE/ONLINE status
+    * Statements check if an error exists
+    * or the instance was hibernating.
     * the blocks for each branch.
     */
    if (error) { 
@@ -189,26 +190,50 @@ healthcheck(callback) {
      * get() takes a callback function.
      */
      
-     
+
      this.connector.get((results, error) => {
         if (results) { 
           if (results.body != null){
            log.debug(`Result body found:${results.body}`);
            var obj = JSON.parse(results.body);
            let entry = null;
+           let tickets = [];
            for(entry in obj.result){
              log.debug(obj.result[entry].number); 
+             let ticket = this.parse_get_response(obj.result[entry]);
+             tickets.push(ticket);
+             log.debug(`GET RETURN ${JSON.stringify(ticket)}`);
            }
-           
+           log.debug(`GET RETURN2 ${JSON.stringify(tickets)}`);
+           return callback(tickets, error);
           }
-        }else{
+        } else {
             log.debug('No results found.');
            return callback(results, error);
         }
          
-     
      });
-  }
+  };
+     parse_get_response(entry) {
+       
+        
+       let ticketdetail = {"change_ticket_number": null, "active": null, "priority": null, 
+                           "description": null, "work_start": null, "work_end": null, "change_ticket_key": null};
+       
+       ticketdetail.change_ticket_number = entry.number;
+       ticketdetail.active = entry.active;
+       ticketdetail.priority = entry.priority;
+       ticketdetail.description = entry.description;
+       ticketdetail.work_start = entry.work_start;
+       ticketdetail.work_end = entry.work_end;
+       ticketdetail.change_ticket_key = entry.sys_id;
+        
+      
+       return ticketdetail; 
+         
+       };
+     
+  
 
   /**
    * @memberof ServiceNowAdapter
@@ -227,8 +252,46 @@ healthcheck(callback) {
      * post() takes a callback function.
      */
      
-     this.connector.post((results, error) => callback (results, error));
-  }
-}
+    this.connector.post((results, error) => {
+        if (results) { 
+          if (results.body != null){
+           log.debug(`Result body found:${results.body}`);
+           var obj = JSON.parse(results.body);
+           let entry = null;
+           let tickets = [];
+           for(entry in obj.result){
+             log.debug(obj.result[entry].number); 
+             let ticket = this.parse_post_response(obj.result[entry]);
+             log.debug(`POST RETURN ${JSON.stringify(ticket)}`);
+           }
+           log.debug(`POST RETURN2 ${JSON.stringify(tickets)}`);
+           return callback(tickets, error);
+          }
+        } else {
+            log.debug('No results found.');
+           return callback(results, error);
+        }
+         
+     });
+  };
+     parse_post_response(entry) {
+       
+        
+       let ticketdetail = {"change_ticket_number": null, "active": null, "priority": null, 
+                           "description": null, "work_start": null, "work_end": null, "change_ticket_key": null};
+       
+       ticketdetail.change_ticket_number = entry.number;
+       ticketdetail.active = entry.active;
+       ticketdetail.priority = entry.priority;
+       ticketdetail.description = entry.description;
+       ticketdetail.work_start = entry.work_start;
+       ticketdetail.work_end = entry.work_end;
+       ticketdetail.change_ticket_key = entry.sys_id;
+        
+      
+       return ticketdetail; 
+         
+       };
 
+};
 module.exports = ServiceNowAdapter;

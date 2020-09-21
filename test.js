@@ -11,16 +11,16 @@ class mocked_log{
      warn(msg){
          console.log(`WARN:${msg}`);
     };
+    info(msg){
+        console.log(`INFO:${msg}`);
+    };
 };
 global.log = new mocked_log();
 
 
 const ServiceNowAdapter = require(path.join(__dirname, '/main.js'));
 
-function testget(){
-    let result = null;
-    let error = null;
-    let id = '1234';
+  let id = '1234';
     let options = {
   "url": "https://dev71226.service-now.com/",
   "auth": {
@@ -30,9 +30,20 @@ function testget(){
   "serviceNowTable": "change_request"
  };
  const testadapter = new ServiceNowAdapter(id, options);
+
+function testget(){
+    let result = null;
+    let error = null;
+  
  testadapter.getRecord((result, error) => {
  console.log(`result ${JSON.stringify(result)}`);
  console.log(`error ${JSON.stringify(error)}`);
  });
 }
+
+function test_healthcheck() {
+ testadapter.healthcheck();   
+}
+
 testget();
+test_healthcheck();

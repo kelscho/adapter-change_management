@@ -211,7 +211,7 @@ healthcheck(callback) {
      */
      
      this.connector.post((results, error) => callback (results, error));
-  }
-}
+  };
+};
 
 module.exports = ServiceNowAdapter;
