@@ -45,5 +45,16 @@ function test_healthcheck() {
  testadapter.healthcheck();   
 }
 
+function testpost(){
+    let result = null;
+    let error = null;
+  
+ testadapter.postRecord((result, error) => {
+ console.log(`result ${JSON.stringify(result)}`);
+ console.log(`error ${JSON.stringify(error)}`);
+ });
+}
+
 testget();
+testpost();
 test_healthcheck();

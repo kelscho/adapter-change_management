@@ -108,11 +108,10 @@ healthcheck(callback) {
        this.emitOffline();
        
      /**
-      * Write this block.
-      * If an error was returned, we need to emit OFFLINE.
+      * If an error was returned, emit OFFLINE.
       * Log the returned error using IAP's global log object
       * at an error severity. In the log message, record
-      * this.id so an administrator will know which ServiceNow
+      * this.id indicating which ServiceNow
       * adapter instance wrote the log message in case more
       * than one instance is configured.
       * If an optional IAP callback function was passed to
@@ -123,10 +122,9 @@ healthcheck(callback) {
        log.debug(`Service now adaptor instance ${this.id} is online`)
        this.emitOnline();   
      /**
-      * Write this block.
-      * If no runtime problems were detected, emit ONLINE.
-      * Log an appropriate message using IAP's global log object
-      * at a debug severity.
+      * If no runtime problems were encountered, emit ONLINE.
+      * If runtime errors encountered, emit OFFLINE and 
+      * Log message for unavailable status, at a debug severity.
       * If an optional IAP callback function was passed to
       * healthcheck(), execute it passing this function's result
       * parameter as an argument for the callback function's
@@ -184,13 +182,11 @@ healthcheck(callback) {
    */
   getRecord(callback) {
     /**
-     * Write the body for this function.
      * The function is a wrapper for this.connector's get() method.
-     * Note how the object was instantiated in the constructor().
+     * Object was instantiated in the constructor().
      * get() takes a callback function.
      */
      
-
      this.connector.get((results, error) => {
         if (results) { 
           if (results.body != null){
@@ -200,7 +196,7 @@ healthcheck(callback) {
            let tickets = [];
            for(entry in obj.result){
              log.debug(obj.result[entry].number); 
-             let ticket = this.parse_get_response(obj.result[entry]);
+             let ticket = this.parse_response(obj.result[entry]);
              tickets.push(ticket);
              log.debug(`GET RETURN ${JSON.stringify(ticket)}`);
            }
@@ -214,7 +210,7 @@ healthcheck(callback) {
          
      });
   };
-     parse_get_response(entry) {
+     parse_response(entry) {
        
         
        let ticketdetail = {"change_ticket_number": null, "active": null, "priority": null, 
@@ -233,7 +229,6 @@ healthcheck(callback) {
          
        };
      
-  
 
   /**
    * @memberof ServiceNowAdapter
@@ -246,9 +241,8 @@ healthcheck(callback) {
    */
   postRecord(callback) {
     /**
-     * Write the body for this function.
      * The function is a wrapper for this.connector's post() method.
-     * Note how the object was instantiated in the constructor().
+     * Object was instantiated in the constructor().
      * post() takes a callback function.
      */
      
@@ -258,40 +252,22 @@ healthcheck(callback) {
            log.debug(`Result body found:${results.body}`);
            var obj = JSON.parse(results.body);
            let entry = null;
-           let tickets = [];
-           for(entry in obj.result){
-             log.debug(obj.result[entry].number); 
-             let ticket = this.parse_post_response(obj.result[entry]);
+           let ticket = null;
+           
+             log.debug(obj.result.number); 
+             ticket = this.parse_response(obj.result);
+             
              log.debug(`POST RETURN ${JSON.stringify(ticket)}`);
-           }
-           log.debug(`POST RETURN2 ${JSON.stringify(tickets)}`);
-           return callback(tickets, error);
+           
+             return callback(ticket, error);
           }
         } else {
             log.debug('No results found.');
-           return callback(results, error);
+            return callback(results, error);
         }
          
      });
   };
-     parse_post_response(entry) {
-       
-        
-       let ticketdetail = {"change_ticket_number": null, "active": null, "priority": null, 
-                           "description": null, "work_start": null, "work_end": null, "change_ticket_key": null};
-       
-       ticketdetail.change_ticket_number = entry.number;
-       ticketdetail.active = entry.active;
-       ticketdetail.priority = entry.priority;
-       ticketdetail.description = entry.description;
-       ticketdetail.work_start = entry.work_start;
-       ticketdetail.work_end = entry.work_end;
-       ticketdetail.change_ticket_key = entry.sys_id;
-        
-      
-       return ticketdetail; 
-         
-       };
 
 };
 module.exports = ServiceNowAdapter;
