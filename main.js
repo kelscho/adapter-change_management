@@ -3,7 +3,7 @@ const path = require('path');
 
 /**
  * Import the ServiceNowConnector class from local Node.js module connector.js
- *   and assign it to constant ServiceNowConnector.
+ * and assign it to constant ServiceNowConnector.
  * When importing local modules, IAP requires an absolute file reference.
  * Built-in module path's join method constructs the absolute filename.
  */
@@ -37,7 +37,7 @@ class ServiceNowAdapter extends EventEmitter {
   /**
    * Here we document the adapter properties.
    * @typedef {object} ServiceNowAdapter~adapterProperties - Adapter
-   *   instance's properties object.
+   * instance's properties object.
    * @property {string} url - ServiceNow instance URL.
    * @property {object} auth - ServiceNow instance credentials.
    * @property {string} auth.username - Login username.
@@ -179,12 +179,15 @@ healthcheck(callback) {
    *
    * @param {ServiceNowAdapter~requestCallback} callback - The callback that
    *   handles the response.
-   */
+   * @return {callback} an array of results or error.
+   */ 
   getRecord(callback) {
     /**
      * The function is a wrapper for this.connector's get() method.
      * Object was instantiated in the constructor().
      * get() takes a callback function.
+     * Checks for data object in the requested body. If found, prints
+     * JSON object. If body returns no data an error is returned.
      */
      
      this.connector.get((results, error) => {
@@ -210,9 +213,19 @@ healthcheck(callback) {
          
      });
   };
+
+  /**
+   * @memberof ServiceNowAdapter
+   * @method parse_response
+   * @summary Create a standard data model for a ticket.
+   * @description Changes values/fields for the Service Now record.
+   *
+   * @param {object} entry - Service Now entry in JSON format.
+   *   
+   *  @return {object}  new ticket detail.
+   */
      parse_response(entry) {
        
-        
        let ticketdetail = {"change_ticket_number": null, "active": null, "priority": null, 
                            "description": null, "work_start": null, "work_end": null, "change_ticket_key": null};
        
@@ -238,12 +251,15 @@ healthcheck(callback) {
    *
    * @param {ServiceNowAdapter~requestCallback} callback - The callback that
    *   handles the response.
+   *  @return {callback} an result object or error.
    */
   postRecord(callback) {
     /**
      * The function is a wrapper for this.connector's post() method.
      * Object was instantiated in the constructor().
      * post() takes a callback function.
+     * Checks for data object in the requested body. If found, prints
+     * JSON object. If body returns no data an error is returned.
      */
      
     this.connector.post((results, error) => {

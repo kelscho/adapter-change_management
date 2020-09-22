@@ -95,12 +95,10 @@ class ServiceNowConnector {
  */
  processRequestResults(error, response, body, callback) {
   /**
-   * You must build the contents of this function.
-   * Study your package and note which parts of the get()
-   * and post() functions evaluate and respond to data
-   * and/or errors the request() function returns.
-   * This function must not check for a hibernating instance;
-   * it must call function isHibernating.
+   * Evaluates data and responds to data
+   * and/or errors the request() function returns using GET() and
+   * POST() functions.
+   * Calls function isHibernating for hibernation status.
    */
    let callbackData = null;
    let callbackError = null;
@@ -144,10 +142,9 @@ sendRequest(callOptions, callback) {
   else
     uri = this.constructUri();
   /**
-   * You must build the requestOptions object.
-   * This is not a simple copy/paste of the requestOptions object
-   * from the previous lab. There should be no
-   * hardcoded values.
+   * The requestOptions object;
+   * Calls the callOptions; HTTP API request method. 
+   * defines authentication parameters.
    */
   const requestOptions = {
    method: callOptions.method,
@@ -178,7 +175,8 @@ sendRequest(callOptions, callback) {
  * @param {error} callback.error - The error property of callback.
  */
  post(callback) {
-  let callOptions = { ...this.options };   
+  let callOptions = { ...this.options };
+  log.debug(`POST CALL OPTIONS ${JSON.stringify(callOptions)}`);  
   callOptions.method = 'POST';
   this.sendRequest(callOptions, (results, error) => callback (results, error));
  }
